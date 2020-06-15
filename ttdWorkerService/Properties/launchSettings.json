@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "ttdWorkerService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
