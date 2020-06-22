@@ -1,11 +1,12 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
 
 namespace Domain.Tests
 {
     public class CibleTests
     {
         private Cible cible;
-        private RapporteurMock rapporteurMock;
+        private Rapporteur rapporteurMock;
 
 
         private static int montantSousLimite = Cible.LimiteMontant - 1;
@@ -15,7 +16,7 @@ namespace Domain.Tests
         [SetUp]
         public void Setup()
         {
-            rapporteurMock = new RapporteurMock();
+            rapporteurMock = Mock.Of<Rapporteur>();
             cible = new Cible(rapporteurMock);
         }
 
