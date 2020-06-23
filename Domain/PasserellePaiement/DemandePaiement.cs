@@ -13,13 +13,12 @@
 
         public bool Payer(double montant)
         {
-            // if (!_compte.AAssezArgent(montant))
-            // {
-            //     return false;
-            // }
+            if (!_compte.AAssezArgent(montant))
+            {
+                return false;
+            }
 
-            // return _systemePaiement.VerserFonds(montant, _compte);
-            return false;
+            return _systemePaiement.VerserFonds(montant, _compte);
         }
     }
 }
