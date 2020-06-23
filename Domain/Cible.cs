@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Domain
+﻿namespace Domain
 {
     public class Cible
     {
@@ -15,6 +13,9 @@ namespace Domain
 
         public bool PreVerifier(int montant)
         {
+            if(rapporteur.EstPlein()) {
+               return false;
+            }
             if (montant > LimiteMontant)
             {
                 Rapporter($"WARN plus de {LimiteMontant}!");
@@ -24,7 +25,7 @@ namespace Domain
             return true;
         }
 
-        private void Rapporter(String msg)
+        private void Rapporter(string msg)
         {
             rapporteur.Rapporter(msg);
         }

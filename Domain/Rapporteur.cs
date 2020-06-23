@@ -4,12 +4,12 @@ namespace Domain
 {
     public class Rapporteur
     {
-        public bool EstPlein()
+        public virtual bool EstPlein()
         {
             return false;
         }
 
-        public virtual void Rapporter(String message)
+        public virtual void Rapporter(string message)
         {
             throw new Exception("NOT IMPLEMENTED");
         }
