@@ -1,4 +1,4 @@
-﻿namespace ttdWorkerService.Tests
+﻿namespace ttdWorkerService
 {
     internal class GreatingService
     {
