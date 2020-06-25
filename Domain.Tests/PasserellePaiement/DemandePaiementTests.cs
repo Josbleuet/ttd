@@ -6,38 +6,46 @@ namespace Domain.Tests.PasserellePaiement
 {
     public class DemandePaiementTests
     {
-        ICompte compteAvecAssezArgent;
-        ICompte compteAvecPasAssezArgent;
-        private ISystemePaiementBanque systemePaiementFonctionnel;
-        private ISystemePaiementBanque systemePaiementDefectueux;
-
+        ICompte compte;
+        private ISystemePaiementBanque systemePaiement;
         private static readonly double unMontantQuelconque = 6.33;
 
 
         [SetUp]
         public void Setup()
         {
-            compteAvecAssezArgent = Mock.Of<ICompte>(c => c.AAssezArgent(It.IsAny<double>()) == true);
-            compteAvecPasAssezArgent = Mock.Of<ICompte>(c => c.AAssezArgent(It.IsAny<double>()) == false);
-            systemePaiementFonctionnel =
-                Mock.Of<ISystemePaiementBanque>(s => s.VerserFonds(It.IsAny<double>(), It.IsAny<ICompte>()) == true);
-            systemePaiementDefectueux =
-                Mock.Of<ISystemePaiementBanque>(s => s.VerserFonds(It.IsAny<double>(), It.IsAny<ICompte>()) == false);
+        }
+
+        [Test]
+        public void QuandPayer_DevraitAssurerAssezArgentAvantPayer()
+        {
+            ConsidererSystemePaiementFonctionnel();
+            ConsidererCompteAvecAssezArgent();
+            var demandeDePaiement = new DemandePaiement(compte, systemePaiement);
+
+            demandeDePaiement.Payer(unMontantQuelconque);
+
+            Mock.Get(compte).Verify(c => c.AAssezArgent(It.IsAny<double>()), Times.Once);
         }
 
         [Test]
         public void UnSystemeDePaimentFonctionnel_QuandPayer_DevraitPayer()
         {
-            var demandeDePaiement = new DemandePaiement(compteAvecAssezArgent, systemePaiementFonctionnel);
+            ConsidererSystemePaiementFonctionnel();
+            ConsidererCompteAvecAssezArgent();
+            var demandeDePaiement = new DemandePaiement(compte, systemePaiement);
 
             var isPaye = demandeDePaiement.Payer(unMontantQuelconque);
+
             Assert.That(isPaye, Is.True);
         }
 
         [Test]
         public void UnSystemeDepaimentDefectueux_QuandPayer_DevraitNePasPayer()
         {
-            var demandeDePaiement = new DemandePaiement(compteAvecAssezArgent, systemePaiementDefectueux);
+            ConsidererSystemePaiementDefectueux();
+            ConsidererCompteAvecAssezArgent();
+            var demandeDePaiement = new DemandePaiement(compte, systemePaiement);
 
             var isPaye = demandeDePaiement.Payer(unMontantQuelconque);
             Assert.That(isPaye, Is.False);
@@ -46,7 +54,9 @@ namespace Domain.Tests.PasserellePaiement
         [Test]
         public void AssezArgent_QuandPayer_DevraitPayer()
         {
-            var demandeDePaiement = new DemandePaiement(compteAvecAssezArgent, systemePaiementFonctionnel);
+            ConsidererSystemePaiementFonctionnel();
+            ConsidererCompteAvecAssezArgent();
+            var demandeDePaiement = new DemandePaiement(compte, systemePaiement);
 
             var isPaye = demandeDePaiement.Payer(unMontantQuelconque);
             Assert.That(isPaye, Is.True);
@@ -55,10 +65,37 @@ namespace Domain.Tests.PasserellePaiement
         [Test]
         public void PasAssezArgent_QuandPayer_DevraitNePasPayer()
         {
-            var demandeDePaiement = new DemandePaiement(compteAvecPasAssezArgent, systemePaiementFonctionnel);
+            ConsidererSystemePaiementFonctionnel();
+            ConsidererCompteAvecPasAssezArgent();
+            var demandeDePaiement = new DemandePaiement(compte, systemePaiement);
 
             var isPaye = demandeDePaiement.Payer(unMontantQuelconque);
+
             Assert.That(isPaye, Is.False);
         }
+
+        void ConsidererCompteAvecAssezArgent()
+        {
+            compte = Mock.Of<ICompte>(c => c.AAssezArgent(It.IsAny<double>()) == true);
+        }
+
+        void ConsidererCompteAvecPasAssezArgent()
+        {
+            compte = Mock.Of<ICompte>(c => c.AAssezArgent(It.IsAny<double>()) == false);
+        }
+
+        void ConsidererSystemePaiementFonctionnel()
+        {
+            systemePaiement = Mock.Of<ISystemePaiementBanque>(s => s.VerserFonds(It.IsAny<double>(), It.IsAny<ICompte>()) == true);
+        }
+
+        void ConsidererSystemePaiementDefectueux()
+        {
+            systemePaiement = Mock.Of<ISystemePaiementBanque>(s => s.VerserFonds(It.IsAny<double>(), It.IsAny<ICompte>()) == false);
+        }
+
+        
+
+
     }
 }
