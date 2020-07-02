@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.IO;
+using Moq;
+using NUnit.Framework;
 
 namespace Domain.Tests
 {
@@ -55,6 +57,17 @@ namespace Domain.Tests
             var result = fizzBuzz.GetResult(value);
 
             Assert.That(result, Is.EqualTo(value.ToString()));
+        }
+
+        [Test]
+        public void TextWriter_WhenPrintingResultsFor5Items_ShouldPrintOut5Lines()
+        {
+            var textWriter = new Mock<TextWriter>();
+            int numberOfResults = 5;
+
+            fizzBuzz.PrintResults(textWriter.Object, numberOfResults);
+
+            textWriter.Verify(t => t.WriteLine(It.IsAny<string>()), Times.Exactly(numberOfResults));
         }
 
     }

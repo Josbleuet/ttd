@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+
 namespace Domain
 {
     public class FizzBuzz
@@ -29,6 +31,14 @@ namespace Domain
         private bool valueIsMultipleOf(int value, int multiple)
         {
             return value % multiple == 0;
+        }
+
+        public void PrintResults(TextWriter writer, int times)
+        {
+            for (int i = 0; i < times; i++)
+            {
+                writer.WriteLine(GetResult(i));
+            }
         }
     }
 }
