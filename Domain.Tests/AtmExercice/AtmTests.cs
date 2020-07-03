@@ -16,14 +16,13 @@ namespace Domain.Tests.AtmExercice
         public void SetupAtm()
         {
             transactionFactory = new Mock<ITransactionFactory>();
-            cashDispenser = new Mock<ICashDispenser>();
-            atm = new Atm(transactionFactory.Object, cashDispenser.Object);
             account = new Account();
         }
 
         [Test]
         public void ValidTransaction_WhenWithdraw_ShouldReturnsSuccess()
         {
+            SetupAtmWithEnoughtOfCash();
             var transaction = GetValidTransaction();
             transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
 
@@ -35,6 +34,7 @@ namespace Domain.Tests.AtmExercice
         [Test]
         public void InvalidTransaction_Withdraw_ShouldReturnsFail()
         {
+            SetupAtmWithEnoughtOfCash();
             var transaction = GetInValidTransaction();
             transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
 
@@ -47,6 +47,7 @@ namespace Domain.Tests.AtmExercice
         [Test]
         public void ValidTransaction_WhenWithdraw_ShouldProcessTransaction()
         {
+            SetupAtmWithEnoughtOfCash();
             var transaction = GetValidTransaction();
             transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
 
@@ -58,6 +59,7 @@ namespace Domain.Tests.AtmExercice
         [Test]
         public void InvalidTransaction_WhenWithdraw_ShouldNotProcessTransaction()
         {
+            SetupAtmWithEnoughtOfCash();
             var transaction = GetInValidTransaction();
             transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
 
@@ -69,6 +71,7 @@ namespace Domain.Tests.AtmExercice
         [Test]
         public void ValidTransaction_WhenWithdraw_ShouldDispenseWithdrawAmount()
         {
+            SetupAtmWithEnoughtOfCash();
             var transaction = GetValidTransaction();
             transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
 
@@ -80,12 +83,38 @@ namespace Domain.Tests.AtmExercice
         [Test]
         public void InvalidTransaction_WhenWithdraw_ShouldNotDispense()
         {
+            SetupAtmWithEnoughtOfCash();
             var transaction = GetInValidTransaction();
             transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
 
             atm.DoWithdrawal(account, aWithdrawalAmount);
 
             cashDispenser.Verify(c => c.Dispense(It.IsAny<int>()), Times.Never());
+        }
+
+        [Test]
+        public void ValidTransaction_WhenWithdraw_ShouldNotRollbackTransaction()
+        {
+            SetupAtmWithEnoughtOfCash();
+            var transaction = GetValidTransaction();
+            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
+
+            atm.DoWithdrawal(account, aWithdrawalAmount);
+
+            Mock.Get(transaction).Verify(t => t.Rollback(), Times.Never());
+        }
+
+        [Test]
+        public void DispenserOutOfCash_WhenWithdraw_ShouldRollbackTransaction()
+        {
+            SetupAtmOutOfCash();
+            var transaction = GetValidTransaction();
+            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
+            cashDispenser.Setup(c => c.Dispense(It.IsAny<int>())).Throws(new OutOfMoneyException());
+
+            atm.DoWithdrawal(account, aWithdrawalAmount);
+
+            Mock.Get(transaction).Verify(t => t.Rollback(), Times.Once());
         }
 
         private ITransactionBancaire GetValidTransaction()
@@ -96,5 +125,19 @@ namespace Domain.Tests.AtmExercice
         {
             return Mock.Of<ITransactionBancaire>(t => t.Validate() == false);
         }
+        private void SetupAtmWithEnoughtOfCash()
+        {
+            cashDispenser = new Mock<ICashDispenser>();
+            cashDispenser.Setup(c => c.Dispense(It.IsAny<int>()));
+            atm = new Atm(transactionFactory.Object, cashDispenser.Object);
+        }
+
+        private void SetupAtmOutOfCash()
+        {
+            cashDispenser = new Mock<ICashDispenser>();
+            cashDispenser.Setup(c => c.Dispense(It.IsAny<int>())).Throws<OutOfMoneyException>();
+            atm = new Atm(transactionFactory.Object, cashDispenser.Object);
+        }
+
     }
 }
