@@ -4,5 +4,6 @@
     {
         public bool Validate();
         public void Process();
+        public void Rollback();
     }
 }

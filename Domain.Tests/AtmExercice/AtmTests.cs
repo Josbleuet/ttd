@@ -8,6 +8,7 @@ namespace Domain.Tests.AtmExercice
     {
         private Atm atm;
         private Mock<ITransactionFactory> transactionFactory;
+        private Mock<ICashDispenser> cashDispenser;
         private Account account;
         int aWithdrawalAmount = 10;
 
@@ -15,7 +16,8 @@ namespace Domain.Tests.AtmExercice
         public void SetupAtm()
         {
             transactionFactory = new Mock<ITransactionFactory>();
-            atm = new Atm(transactionFactory.Object);
+            cashDispenser = new Mock<ICashDispenser>();
+            atm = new Atm(transactionFactory.Object, cashDispenser.Object);
             account = new Account();
         }
 
@@ -62,6 +64,28 @@ namespace Domain.Tests.AtmExercice
             atm.DoWithdrawal(account, aWithdrawalAmount);
 
             Mock.Get(transaction).Verify(c => c.Process(), Times.Never());
+        }
+
+        [Test]
+        public void ValidTransaction_WhenWithdraw_ShouldDispenseWithdrawAmount()
+        {
+            var transaction = GetValidTransaction();
+            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
+
+            atm.DoWithdrawal(account, aWithdrawalAmount);
+
+            cashDispenser.Verify(c => c.Dispense(aWithdrawalAmount), Times.Once());
+        }
+
+        [Test]
+        public void InvalidTransaction_WhenWithdraw_ShouldNotDispense()
+        {
+            var transaction = GetInValidTransaction();
+            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
+
+            atm.DoWithdrawal(account, aWithdrawalAmount);
+
+            cashDispenser.Verify(c => c.Dispense(It.IsAny<int>()), Times.Never());
         }
 
         private ITransactionBancaire GetValidTransaction()

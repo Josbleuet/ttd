@@ -14,5 +14,9 @@
         public void Process()
         {
         }
+
+        public void Rollback()
+        {
+        }
     }
 }

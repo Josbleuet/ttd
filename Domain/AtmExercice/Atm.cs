@@ -3,9 +3,11 @@
     public class Atm
     {
         private readonly ITransactionFactory transactionFactory;
-        public Atm(ITransactionFactory transactionFactory)
+        private readonly ICashDispenser cashDispenser;
+        public Atm(ITransactionFactory transactionFactory, ICashDispenser cashDispenser)
         {
             this.transactionFactory = transactionFactory;
+            this.cashDispenser = cashDispenser;
         }
 
         public bool DoWithdrawal(Account account, int amount)
@@ -15,7 +17,15 @@
             {
                 transactionBancaire.Process();
 
-                return true;
+                try
+                {
+                    cashDispenser.Dispense(amount);
+                    return true;
+                }
+                catch (OutOfMoneyException e)
+                {
+                    transactionBancaire.Rollback();
+                }
             }
             return false;
         }
