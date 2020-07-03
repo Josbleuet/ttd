@@ -127,16 +127,26 @@ namespace Domain.Tests.AtmExercice
         }
         private void SetupAtmWithEnoughtOfCash()
         {
-            cashDispenser = new Mock<ICashDispenser>();
-            cashDispenser.Setup(c => c.Dispense(It.IsAny<int>()));
-            atm = new Atm(transactionFactory.Object, cashDispenser.Object);
+            atm = new Atm(transactionFactory.Object, GetCashDispenserEnoughtOfCash());
         }
 
         private void SetupAtmOutOfCash()
         {
+            atm = new Atm(transactionFactory.Object, GetCashDispenserOutOfCash());
+        }
+
+        private ICashDispenser GetCashDispenserEnoughtOfCash()
+        {
+            cashDispenser = new Mock<ICashDispenser>();
+            cashDispenser.Setup(c => c.Dispense(It.IsAny<int>()));
+            return cashDispenser.Object;
+        }
+
+        private ICashDispenser GetCashDispenserOutOfCash()
+        {
             cashDispenser = new Mock<ICashDispenser>();
             cashDispenser.Setup(c => c.Dispense(It.IsAny<int>())).Throws<OutOfMoneyException>();
-            atm = new Atm(transactionFactory.Object, cashDispenser.Object);
+            return cashDispenser.Object;
         }
 
     }
