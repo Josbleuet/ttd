@@ -3,5 +3,6 @@
     public interface ITransactionBancaire
     {
         public bool Validate();
+        public void Process();
     }
 }

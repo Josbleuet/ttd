@@ -10,5 +10,9 @@
         {
             return true;
         }
+
+        public void Process()
+        {
+        }
     }
 }

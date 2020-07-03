@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Domain.AtmExercice;
+﻿using Domain.AtmExercice;
 using Moq;
 using NUnit.Framework;
 
@@ -25,8 +22,8 @@ namespace Domain.Tests.AtmExercice
         [Test]
         public void ValidTransaction_WhenWithdraw_ShouldReturnsSuccess()
         {
-            var transactionValid = Mock.Of<ITransactionBancaire>( t => t.Validate() == true);
-            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transactionValid);
+            var transaction = GetValidTransaction();
+            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
 
             var WithdrawIsSuccess = atm.DoWithdrawal(account, aWithdrawalAmount);
 
@@ -36,12 +33,44 @@ namespace Domain.Tests.AtmExercice
         [Test]
         public void InvalidTransaction_Withdraw_ShouldReturnsFail()
         {
-            var transactionInvalid = Mock.Of<ITransactionBancaire>(t => t.Validate() == false);
-            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transactionInvalid);
+            var transaction = GetInValidTransaction();
+            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
 
             var WithdrawIsSuccess = atm.DoWithdrawal(account, aWithdrawalAmount);
 
             Assert.That(WithdrawIsSuccess, Is.False);
+        }
+
+
+        [Test]
+        public void ValidTransaction_WhenWithdraw_ShouldProcessTransaction()
+        {
+            var transaction = GetValidTransaction();
+            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
+
+            atm.DoWithdrawal(account, aWithdrawalAmount);
+
+            Mock.Get(transaction).Verify(c => c.Process(), Times.Once());
+        }
+
+        [Test]
+        public void InvalidTransaction_WhenWithdraw_ShouldNotProcessTransaction()
+        {
+            var transaction = GetInValidTransaction();
+            transactionFactory.Setup(f => f.Create(It.IsAny<Account>(), It.IsAny<int>())).Returns(transaction);
+
+            atm.DoWithdrawal(account, aWithdrawalAmount);
+
+            Mock.Get(transaction).Verify(c => c.Process(), Times.Never());
+        }
+
+        private ITransactionBancaire GetValidTransaction()
+        {
+            return Mock.Of<ITransactionBancaire>(t => t.Validate() == true);
+        }
+        private ITransactionBancaire GetInValidTransaction()
+        {
+            return Mock.Of<ITransactionBancaire>(t => t.Validate() == false);
         }
     }
 }

@@ -13,6 +13,8 @@
             var transactionBancaire = transactionFactory.Create(account, amount);
             if (transactionBancaire.Validate())
             {
+                transactionBancaire.Process();
+
                 return true;
             }
             return false;
