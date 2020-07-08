@@ -19,13 +19,13 @@ namespace Domain.Tests.PatPaie
         private Employee bob;
 
         [SetUp]
-        public void configurerUnServiceDePaiement()
+        public void ConfigurerUnServiceDePaiement()
         {
             paymentService = Mock.Of<IPaymentService>();
         }
 
         [SetUp]
-        public void configurerEntrepriseAvecDeuxEmployes()
+        public void ConfigurerEntrepriseAvecDeuxEmployes()
         {
            entreprise = new Entreprise(WEEKS_PER_PERIOD, paymentService);
 
@@ -38,7 +38,7 @@ namespace Domain.Tests.PatPaie
 
 
         [Test]
-        public void plusieursEmployes_quandFairePaie_devraitTousLesPayer()
+        public void PlusieursEmployes_quandFairePaie_devraitTousLesPayer()
         {
             entreprise.PayEmployeesForOnePeriod();
 

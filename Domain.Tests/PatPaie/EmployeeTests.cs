@@ -21,7 +21,7 @@ namespace Domain.Tests.PatPaie
         private readonly double anyAmount = 0.234;
 
         [SetUp]
-        public void configurerEntrepriseAvecAlice()
+        public void ConfigurerEntrepriseAvecAlice()
         {
             paymentService = Mock.Of<IPaymentService>();
 
@@ -30,14 +30,14 @@ namespace Domain.Tests.PatPaie
         }
 
         [Test]
-        public void unEmploye_quandFairePaie_devraitLePayerDansSonCompte()
+        public void UnEmploye_quandFairePaie_devraitLePayerDansSonCompte()
         {
             alice.PayForOnePeriod(WEEKS_PER_PERIOD, paymentService);
             Mock.Get(paymentService).Verify(a => a.MakePayment(It.IsAny<double>(), aliceAccount), Times.Once);
         }
 
         [Test]
-        public void unEmploye_quandFairePaie_devraitPayerSonSalaireBrutPourPeriode()
+        public void UnEmploye_quandFairePaie_devraitPayerSonSalaireBrutPourPeriode()
         {
             alice.PayForOnePeriod(WEEKS_PER_PERIOD, paymentService);
 
